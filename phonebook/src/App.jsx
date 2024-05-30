@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import axios from 'axios'
 import { useEffect } from 'react'
 import accessPersons from './services/persons'
 
@@ -30,12 +29,26 @@ const Persons = ({ persons, handleDelBtn }) =>
     {persons.map(person => <Person key={person.name} person={person} handleDelBtn={handleDelBtn} />)}
   </ul>
 
+const Notification = ({ message, type }) => {
+  if (message === null) {
+    return null
+  } else {
+    return (
+      <div className={type}>
+        {message}
+      </div>
+    )
+  }
+}
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterStr, setFilterStr] = useState('')
   const [personsToShow, setPersonsToShow] = useState(persons)
+  const [actionMessage, setActionMessage] = useState(null)
+  const [warningMessage, setWarningMessage] = useState(null)
 
   useEffect(() => {
     accessPersons
@@ -63,6 +76,11 @@ const App = () => {
           .then(updatedPerson => {
             const updatedPersons = persons.map(person => person.id !== updatedPerson.id ? person : updatedPerson)
             refreshDisplayList(updatedPersons)
+            setActionMessage(`Changed ${updatedPerson.name}'s number`)
+            setTimeout(() => setActionMessage(null), 5000)
+          }).catch(error => {
+            setWarningMessage(`Information of ${targetPerson.name} has already been removed from server`)
+            setTimeout(() => setWarningMessage(null), 5000)
           })
       }
     } else {
@@ -71,6 +89,8 @@ const App = () => {
         .then(addedPerson => {
           const updatedPersons = persons.concat(addedPerson)
           refreshDisplayList(updatedPersons)
+          setActionMessage(`Added ${addedPerson.name}`)
+          setTimeout(() => setActionMessage(null), 5000)
         })
     }
   }
@@ -89,15 +109,20 @@ const App = () => {
         .then(deletedPerson => {
           const updatedPersons = persons.filter(person => person.id !== deletedPerson.id)
           refreshDisplayList(updatedPersons)
+          setActionMessage(`Deleted ${deletedPerson.name}`)
+          setTimeout(() => setActionMessage(null), 5000)
+        }).catch(error => {
+          setWarningMessage(`Information of ${targetPerson.name} has already been removed from server`)
+          setTimeout(() => setWarningMessage(null), 5000)
         })
-    } else {
-
     }
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={actionMessage} type={'notification'} />
+      <Notification message={warningMessage} type={'warning'} />
       <Filter onChange={inputFilterStr} value={filterStr} />
       <h2>Add a new contact</h2>
       <Form
