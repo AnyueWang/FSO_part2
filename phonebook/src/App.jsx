@@ -79,7 +79,8 @@ const App = () => {
             setActionMessage(`Changed ${updatedPerson.name}'s number`)
             setTimeout(() => setActionMessage(null), 5000)
           }).catch(error => {
-            setWarningMessage(`Information of ${targetPerson.name} has already been removed from server`)
+            const message = error.response.data.error
+            setWarningMessage(message)
             setTimeout(() => setWarningMessage(null), 5000)
           })
       }
