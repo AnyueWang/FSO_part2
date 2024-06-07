@@ -91,6 +91,10 @@ const App = () => {
           refreshDisplayList(updatedPersons)
           setActionMessage(`Added ${addedPerson.name}`)
           setTimeout(() => setActionMessage(null), 5000)
+        }).catch(error => {
+          const message = error.response.data.error
+          setWarningMessage(message)
+          setTimeout(() => setWarningMessage(null), 5000)
         })
     }
   }
@@ -106,10 +110,10 @@ const App = () => {
     if (window.confirm(`Delete ${persons.find(person => person.id === targetPerson.id).name}?`)) {
       accessPersons
         .remove(targetPerson)
-        .then(deletedPerson => {
-          const updatedPersons = persons.filter(person => person.id !== deletedPerson.id)
+        .then(data => {
+          const updatedPersons = persons.filter(person => person.id !== targetPerson.id)
           refreshDisplayList(updatedPersons)
-          setActionMessage(`Deleted ${deletedPerson.name}`)
+          setActionMessage(`Deleted ${targetPerson.name}`)
           setTimeout(() => setActionMessage(null), 5000)
         }).catch(error => {
           setWarningMessage(`Information of ${targetPerson.name} has already been removed from server`)
